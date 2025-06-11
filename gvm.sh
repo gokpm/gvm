@@ -53,11 +53,6 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Remove any existing Go installation
-print_info "Removing any existing Go installation..."
-rm -rf /usr/local/go 2>/dev/null || true
-print_success "Old Go installation removed (if any existed)"
-
 # Create temporary directory for download
 TEMP_DIR=$(mktemp -d)
 DOWNLOAD_PATH="$TEMP_DIR/$DOWNLOAD_FILE"
@@ -91,6 +86,11 @@ if [ ! -f "$DOWNLOAD_FILE" ]; then
 fi
 
 print_success "Download completed"
+
+# Remove any existing Go installation
+print_info "Removing any existing Go installation..."
+rm -rf /usr/local/go 2>/dev/null || true
+print_success "Old Go installation removed (if any existed)"
 
 # Extract to /usr/local
 print_info "Extracting Go to ${INSTALL_DIR}..."
