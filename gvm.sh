@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Go Version Installer Script
-# Usage: ./install_go.sh <version>
-# Example: ./install_go.sh 1.24
+# Usage: sudo ./gvm.sh <version>
+# Example: sudo ./gvm.sh 1.24.4
 
 set -e
 
