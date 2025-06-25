@@ -39,9 +39,42 @@ if [ $# -eq 0 ]; then
 fi
 
 GO_VERSION="$1"
+
+# Validate version format (supports X.Y or X.Y.Z)
+if [[ ! "$GO_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+    print_error "Invalid version format. Please use format X.Y or X.Y.Z (e.g., 1.20 or 1.20.5)"
+    echo "Example: $0 1.21.12"
+    exit 1
+fi
+
+# If version is in X.Y format, add .0 to make it X.Y.0
+if [[ "$GO_VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+    GO_VERSION="${GO_VERSION}.0"
+    print_info "Version format adjusted to: $GO_VERSION"
+fi
+
 DOWNLOAD_URL="https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz"
 DOWNLOAD_FILE="go${GO_VERSION}.linux-amd64.tar.gz"
 INSTALL_DIR="/usr/local"
+
+# Check if the requested version is already installed
+if [ -d "/usr/local/go" ]; then
+    CURRENT_VERSION=$(/usr/local/go/bin/go version 2>/dev/null | grep -oP 'go\K[0-9]+\.[0-9]+(\.[0-9]+)?' || true)
+    
+    if [ "$CURRENT_VERSION" = "$GO_VERSION" ]; then
+        print_success "Go ${GO_VERSION} is already installed at /usr/local/go"
+        print_info "Current Go version: $(/usr/local/go/bin/go version)"
+        exit 0
+    else
+        print_warning "Found different Go version (${CURRENT_VERSION:-None}) installed at /usr/local/go"
+        read -p "Do you want to continue with installation of Go ${GO_VERSION}? [y/N] " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Installation cancelled by user"
+            exit 0
+        fi
+    fi
+fi
 
 print_info "Starting Go ${GO_VERSION} installation..."
 print_info "Download URL: ${DOWNLOAD_URL}"
